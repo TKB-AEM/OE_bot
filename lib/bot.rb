@@ -1,7 +1,9 @@
 # coding:utf-8
+
 require 'yaml'
 require 'twitter'
 require 'tweetstream'
+require_relative "./card.rb"
 require_relative "./function/function.rb"
 
 class Bot
@@ -33,6 +35,8 @@ class Bot
   end
 
   def post(text,username,id = nil,debug = false)
+
+    # debugモードでは実際にPostしない
     if debug
       if id
         rep_text = "@#{username} #{text}"
@@ -40,6 +44,7 @@ class Bot
       else
         puts "#{text}\n\n"
       end
+
     else
       if id
         rep_text = "@#{username} #{text}"
@@ -50,6 +55,7 @@ class Bot
         puts "#{text}\n\n"
       end
     end
+
   rescue => em
     puts "post error #{em}"
   end
@@ -58,6 +64,7 @@ class Bot
     if id
       @client.favorite(id)
     end
+
   rescue => em
     puts "fav error #{em}"
   end

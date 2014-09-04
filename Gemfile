@@ -21,7 +21,7 @@ gem 'twitter', '~> 5.11.0'
 gem 'tweetstream', '~> 2.6.1'
 gem 'net-ping', '~> 1.7.4'
 gem 'net-ssh', '~> 2.9.1'
-
+gem 'clockwork', '~> 0.7.7'
 
 group :doc do
   gem 'sdoc', '0.3.20', require: false
