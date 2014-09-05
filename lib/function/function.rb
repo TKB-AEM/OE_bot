@@ -43,6 +43,9 @@ class Bot
       elsif contents =~ /(黒|茶|赤|橙|黄|緑|青|紫|灰|白|金|銀)/ then
         return function.color_decode(contents)
 
+      elsif contents =~ /(記録|きろく)/ then
+        return function.record(username,str_time)
+
       else # どのキーワードにも当てはまらなかったら
         return function.conversation(contents,str_time)
       end
@@ -118,6 +121,29 @@ class Bot
       return text
     end
 
+    # 訪問回数と合計滞在時間を返す
+    def record(username,str_time)
+      user = User.find_by_twitter_id(username)
+
+      if user
+        id = user.id
+        # twitter_idがあれば（userがnilでない）idもあるが、訪問回数などは無い可能性がある。
+        Condition.where(:user_id => id).first_or_create do |c|
+          c.access_times = 0
+          c.staying_time = 0
+          c.save
+        end
+        condition = Condition.find_by_user_id(id)
+        access_times = condition.access_times
+        staying_time = time_to_str(condition.staying_time)
+        text = "\nこれまでの訪問回数は#{access_times}回、\n合計滞在時間は#{staying_time}です。\n#{str_time}"
+      else
+        text = "3L502で登録してください。\n#{str_time}"
+      end
+
+      return text
+    end
+
     # どのキーワードにも当てはまらなかったら (talk.rb)
     def conversation(contents,str_time)
       text = talk(contents)
@@ -138,7 +164,7 @@ class Bot
       command = "paplay ./voice/nyanpass.wav"
       system(command)
       name = User.find(id).name
-      text = "#{name}が退室しました。\n滞在時間は#{staying_time}です\n#{str_time}"
+      text = "#{name}が退室しました。\n滞在時間は#{staying_time}です。\n#{str_time}"
       return text
     end
 
