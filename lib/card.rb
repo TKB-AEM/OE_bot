@@ -5,12 +5,6 @@ require_relative "./function/function.rb"
 
 class Card
 
-  attr_accessor :data
-
-  def initialize
-    @data = Database.new()
-  end
-
   def Card::idnum
     card = new
     counts = 0
@@ -45,7 +39,7 @@ class Card
   end
 
   # カードのIDを渡すとユーザーのidを返す
-  def check(card_id)
+  def check(card_id = "")
     user = User.find_by_card_id(card_id)
 
     if !(user)

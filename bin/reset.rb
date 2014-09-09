@@ -15,7 +15,6 @@ module Clockwork
       debug = false
 
       last_id = User.last.id
-
       last_id.times do |id|
         id = id + 1
 
@@ -34,9 +33,14 @@ module Clockwork
       text = "在室情報をリセットしました。\n#{str_time}"
       oebot.post(text,nil,nil,debug)
 
+    when 'backup.job'
+      system("ruby ../control/members_export.rb")
     end
+
   end
 
   # 朝６時になったら部屋にいる人をクリアする
   every(1.day, 'reset.job', :at => '06:00')
+  # データベースのバックアップをとる
+  every(1.day, 'backup.job', :at => '06:30')
 end

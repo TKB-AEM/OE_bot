@@ -18,10 +18,11 @@ def talk(contents)
   elsif contents =~ /わかる/
     return "わかられました。"
   elsif contents =~ /それな/
-    return "せやな。"
+    return "せやなです。"
   elsif contents =~ /せやな/
-    return "それな。"
+    return "それなです。。"
   else
-    return "どう返してよいかわかりません。"
+    wakaran = ["どう返してよいかわかりません。","そんなこと言わないでください。","その言葉はまだ理解できません。"]
+    return wakaran.sample
   end
 end

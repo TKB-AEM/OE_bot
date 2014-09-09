@@ -1,15 +1,13 @@
 #!/usr/bin/env ruby
 # coding:utf-8
 
-require "../lib/database/database.rb"
-
-data = Database.new()
+require "../lib/database/botuser.rb"
 
 members_list = ""
 last_id = User.last.id
 last_id.times do |id|
   id = id + 1
-  user = User.find(id)
+  user = User.find(id:id)
   Condition.where(:user_id => id).first_or_create do |c|
     c.access_times = 0
     c.staying_time = 0
@@ -28,7 +26,6 @@ last_id.times do |id|
   members_list += "#{user.condition.access_times},#{user.condition.staying_time}\n"
 end
 
-File.write("../list/backup.txt",members_list)
-
-# data.show_user_contents()
-data.show_condition_contents()
+filename = "../list/backup.txt"
+File.write(filename,members_list)
+puts "#{filename}へのバックアップが完了しました。"

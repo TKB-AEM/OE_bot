@@ -8,23 +8,14 @@ ActiveRecord::Base.establish_connection(
 )
 
 class User < ActiveRecord::Base
+
   validates :name, :presence => true
   I18n.enforce_available_locales = false
   has_one :condition ,:dependent => :destroy
-end
-
-class Condition < ActiveRecord::Base
-  belongs_to :user
-end
-
-class Database
-
-  def initialize
-  end
 
   # 新規登録
-  def entry(name,twitter_id,card_id)
-    user = User.new do |u|
+  def User::entry(name:"",twitter_id:"",card_id:"")
+    user = self.new do |u|
       u.name = name
       u.twitter_id = twitter_id
       u.card_id = card_id
@@ -32,13 +23,23 @@ class Database
     user.save
 
     if !user.save # validates
-      puts "entry error #{user.errors.messages}\n\n"
+      puts "entry error #{self.errors.messages}\n\n"
     end
+
+    # first_or_createをしなくてよくなる
+    condition = Condition.new do |c|
+      c.user_id = user.id
+      c.staytus = false
+      c.access_times = 0
+      c.staying_time = 0
+    end
+    condition.save
+
   end
 
-  # 既に登録してあるひとの上書き
-  def update(id,name,twitter_id,card_id)
-    user = User.find(id) do |u|
+  # 既に登録してあるuserの上書き
+  def User::update(id:nil,name:"",twitter_id:"",card_id:"")
+    user = self.find(id) do |u|
       u.name = name
       u.twitter_id = twitter_id
       u.card_id = card_id
@@ -55,13 +56,13 @@ class Database
   end
 
   # 情報の削除（id指定無しで全員）
-  def user_clear(id = nil)
+  def User::clear(id:nil)
     if id
-      user = User.find(id)
+      user = self.find(id)
       user.destroy
       user.save
     else
-      User.destroy_all
+      self.destroy_all
     end
 
   rescue => em
@@ -69,26 +70,11 @@ class Database
     p em
   end
 
-  # 状態の削除（id指定無しで全員）
-  def condition_clear(id = nil)
-    if id
-      condition = Condition.find(id)
-      condition.delete
-      condition.save
-    else
-      Condition.delete_all
-    end
-
-  rescue => em
-    print "condition_clear error "
-    p em
-  end
-
   # userの情報を表示（id指定無しで全員表示）
-  def show_user_contents(id = nil)
+  def User::show_contents(id:nil)
 
     if id
-      user = User.find(id)
+      user = self.find(id)
       puts "id         #{user.id}"
       puts "name       #{user.name}"
       puts "twitter_id #{user.twitter_id}"
@@ -96,7 +82,7 @@ class Database
       puts ""
 
     else
-      User.all.each do |u|
+      self.all.each do |u|
         puts "id         #{u.id}"
         puts "name       #{u.name}"
         puts "twitter_id #{u.twitter_id}"
@@ -110,12 +96,37 @@ class Database
     p em
   end
 
+end
+
+
+
+class Condition < ActiveRecord::Base
+
+  belongs_to :user
+
+  # 状態の削除（id指定無しで全員）
+  def Condition::clear(id:nil)
+    if id
+      condition = self.find_by_user_id(id)
+      condition.delete
+      condition.save
+    else
+      self.delete_all
+    end
+
+  rescue => em
+    print "condition_clear error "
+    p em
+  end
+
   # userの状態一覧を表示（id指定無しで全員表示）
-  def show_condition_contents(id = nil)
+  def Condition::show_contents(id:nil)
 
     if id
-      condition = Condition.find(id)
+      condition = self.find_by_user_id(id)
+      user = User.find(condition.user_id)
       puts "user_id       #{condition.user_id}"
+      puts "name          #{user.name}"
       puts "entrance_time #{condition.entrance_time}"
       puts "exit_time     #{condition.exit_time}"
       puts "staytus       #{condition.staytus}"
@@ -124,8 +135,10 @@ class Database
       puts ""
 
     else
-      Condition.all.each do |c|
+      self.all.each do |c|
+        user = User.find(c.user_id)
         puts "user_id       #{c.user_id}"
+        puts "name          #{user.name}"
         puts "entrance_time #{c.entrance_time}"
         puts "exit_time     #{c.exit_time}"
         puts "staytus       #{c.staytus}"
@@ -140,73 +153,12 @@ class Database
     p em
   end
 
-  # userのidによって、在室か否かを返す
-  def staytus?(id = nil)
-    Condition.where(:user_id => id).first_or_create do |c|
-      c.staytus = false
-      c.save
-    end
-
-    user = User.find(id)
-    return user.condition.staytus
-
-  rescue => em
-    print "staytus? error "
-    p em
-  end
-
-  # 渡されたidの人を在室状態にする
-  def entrance(id = nil,time = nil)
-    user = User.find(id)
-    user.condition.staytus = true
-    user.condition.entrance_time = time
-    user.condition.save
-
-  rescue => em
-    print "entrance error "
-    p em
-  end
-
-  # 渡されたidの人を不在状態にし、訪問回数を加算する
-  def exit(id = nil,time = nil)
-    user = User.find(id)
-    user.condition.staytus = false
-    user.condition.exit_time = time
-
-    if !(user.condition.access_times)
-      user.condition.access_times = 0
-    end
-    user.condition.access_times += 1
-    user.condition.save
-
-  rescue => em
-    print "exit error "
-    p em
-  end
-
-  # 渡されたidの人の在室状態を変更する
-  def access(id = nil,time = nil,staytus = false)
-    Condition.where(:user_id => id).first_or_create do |c|
-      c.staytus = staytus
-      c.save
-    end
-
-    user = User.find(id)
-    user.condition.staytus = staytus
-    user.condition.entrance_time = time
-    user.condition.save
-
-  rescue => em
-    print "access error "
-    p em
-  end
-
   # staying_time、合計滞在時間を計算する 必ずexit()の後に
   # またその都度の滞在時間を返す
-  def sum_time(id = nil)
-    user = User.find(id)
-    entrance = user.condition.entrance_time
-    exit = user.condition.exit_time
+  def Condition::sum_time(id:nil)
+    condition = self.find_by_user_id(id)
+    entrance = condition.entrance_time
+    exit = condition.exit_time
 
     entrance_m = entrance.min
     entrance_h = entrance.hour
@@ -227,11 +179,11 @@ class Database
       hour += 24
     end
 
-    if !(user.condition.staying_time)
-      user.condition.staying_time = 0
+    if !(condition.staying_time)
+      condition.staying_time = 0
     end
-    user.condition.staying_time += hour*60 + min
-    user.condition.save
+    condition.staying_time += hour*60 + min
+    condition.save
 
     return hour*60 + min
 
