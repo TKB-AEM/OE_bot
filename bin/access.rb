@@ -54,7 +54,7 @@ begin
       else
         user.exit(time)
         staying_time = time_to_str(Condition.sum_time(id:id))
-        text = function.out(id:id,staying_tim:estaying_time)
+        text = function.out(id:id,staying_time:staying_time)
         text += "\n#{str_time}"
         oebot.post(text,debug:debug)
       end
