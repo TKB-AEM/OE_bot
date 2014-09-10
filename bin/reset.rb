@@ -1,6 +1,7 @@
 # coding:utf-8
 
 require '../lib/bot.rb'
+require '../lib/database/botuser.rb'
 require 'clockwork'
 
 module Clockwork
@@ -10,28 +11,21 @@ module Clockwork
     case job
 
     when 'reset.job'
-      data = Database.new()
-      oebot = Bot.new()
+      oebot = Bot.new
       debug = false
 
       last_id = User.last.id
       last_id.times do |id|
         id = id + 1
-
-        Condition.where(:user_id => id).first_or_create do |c|
-          c.staytus = false
-          c.save
-        end
-
-        staytus = data.staytus?(id)
         user = User.find(id)
         user.condition.staytus = false
         user.condition.save
       end
 
       str_time = Time.now.strftime("[%Y-%m-%d %H:%M]")
-      text = "在室情報をリセットしました。\n#{str_time}"
-      oebot.post(text,nil,nil,debug)
+      text = "在室情報をリセットしました。"
+      text += "\n#{str_time}"
+      oebot.post(text,debug:debug)
 
     when 'backup.job'
       system("ruby ../control/members_export.rb")

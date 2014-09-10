@@ -7,7 +7,7 @@ members_list = ""
 last_id = User.last.id
 last_id.times do |id|
   id = id + 1
-  user = User.find(id:id)
+  user = User.find(id)
   Condition.where(:user_id => id).first_or_create do |c|
     c.access_times = 0
     c.staying_time = 0
