@@ -24,7 +24,7 @@ class Function
     elsif contents =~ /(記録|きろく)/
       function.record(twitter_id:twitter_id)
 
-    elsif contents =~ /(退室|たいしつ)/
+    elsif contents =~ /(退室|たいしつ|退出|たいしゅつ)/
       function.rep_exit(twitter_id:twitter_id,debug:debug)
 
     elsif contents =~ /(ping|Ping|PING)/
