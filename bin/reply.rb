@@ -12,6 +12,7 @@ if mode == "debug"
   debug = true
   puts "debugモードです"
 end
+puts "ready!"
 
 begin
   oebot.timeline.userstream do |status|

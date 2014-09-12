@@ -1,5 +1,6 @@
 #coding:utf-8
 
+require 'open3'
 require_relative "./esysPinger.rb"
 require_relative "./gacha.rb"
 require_relative "./color_code.rb"
@@ -117,7 +118,15 @@ class Function
 
   # ping
   def ping()
-    text = "pong"
+    command = "ping -c 1 www.google.com -q; sort >&2"
+    out ,error = Open3.capture3(command, :stdin_data=>"")
+
+    if !error.empty?
+      text = error
+    else
+      out = out.split("\n\n")
+      text = out[0]
+    end
     return text
   end
 
@@ -138,7 +147,7 @@ class Function
 
   # 抵抗値 -> カラーコード (color_code.rb)
   def color_encode(contents)
-    contents = contents.gsub(/@open_esys\s/,"")
+    contents = contents.gsub(/@\w*/,"")
     contents = contents.gsub(/(Ω|オーム|\s|　)/,"")
     text = c_encode(contents)
     return text
@@ -146,7 +155,7 @@ class Function
 
   # カラーコード -> 抵抗値 (color_code.rb)
   def color_decode(contents)
-    contents = contents.gsub(/@open_esys\s/,"")
+    contents = contents.gsub(/@\w*/,"")
     contents = contents.gsub(/(\s|　|,|、)/,"")
     text = c_decode(contents)
     return text
