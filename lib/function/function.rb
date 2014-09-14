@@ -10,42 +10,54 @@ require_relative "../database/botuser.rb"
 require_relative "../bot.rb"
 
 $okaeri = ["okaeri1.wav","okaeri2.wav","okaeri3.wav","okaeri4.wav"]
+PostError = Class.new(StandardError)
 
 class Function
 
   def Function::generate_reply(contents = "",twitter_id:nil,debug:nil)
     function = new
+    rep_text = ""
 
     if contents =~ /(おーいー|oe|OE|openesys|OpenEsys|open_esys|Open_Esys)(_||\s)(BOT|Bot|bot|ボット|ﾎﾞｯﾄ|ぼっと)/
-      function.call()
+      rep_text = function.call()
 
     elsif contents =~ /(誰か|だれか|誰が|だれが|おるか)/
-      function.being()
+      rep_text = function.being()
 
     elsif contents =~ /(記録|きろく)/
-      function.record(twitter_id:twitter_id)
+      rep_text = function.record(twitter_id:twitter_id)
 
     elsif contents =~ /(退室|たいしつ|退出|たいしゅつ)/
-      function.rep_exit(twitter_id:twitter_id,debug:debug)
+      rep_text = function.rep_exit(twitter_id:twitter_id,debug:debug)
 
     elsif contents =~ /(ping|Ping|PING)/
-      function.ping()
+      rep_text = function.ping()
 
     elsif contents =~ /(計算機室|機室|きしつ)/
-      function.esys_pinger()
+      rep_text = function.esys_pinger()
 
     elsif contents =~ /L棟(パン|ぱん)(ガチャ|がちゃ)/
-      function.ltou_gacha()
+      rep_text = function.ltou_gacha()
+
+    elsif contents =~ /(say|Say|って言って|っていって)/
+      rep_text = function.say(contents)
 
     elsif contents =~ /(Ω|オーム)/
-      function.color_encode(contents)
+      rep_text = function.color_encode(contents)
 
     elsif contents =~ /(黒|茶|赤|橙|黄|緑|青|紫|灰|白|金|銀)/
-      function.color_decode(contents)
+      rep_text = function.color_decode(contents)
 
     else # どのキーワードにも当てはまらなかったら
-      function.conversation(contents)
+      rep_text = function.conversation(contents)
     end
+
+    raise PostError.new('cannot reply, no text') if rep_text.nil? || rep_text.empty?
+    return rep_text if rep_text
+
+  rescue => em
+    puts Time.now
+    p em
   end
 
   # OEbotを呼び出す
@@ -145,6 +157,21 @@ class Function
     return text
   end
 
+  # OpenJTalkでしゃべらせる
+  def say(contents)
+    contents = contents.gsub(/@\w*/,"")
+    contents = contents.gsub(/(say|Say|って言って|っていって)/,"")
+    contents = contents.gsub(/(\s|　)/,"")
+    if !contents.empty? && !contents.nil?
+      text = "「#{contents}」って言いました。"
+      command = "sh ../lib/function/mei/say.sh #{contents}"
+      system(command)
+    else
+      text = "セリフを指定してください。"
+    end
+    return text
+  end
+
   # 抵抗値 -> カラーコード (color_code.rb)
   def color_encode(contents)
     contents = contents.gsub(/@\w*/,"")
@@ -164,8 +191,12 @@ class Function
   # どのキーワードにも当てはまらなかったら (talk.rb)
   def conversation(contents)
     text = talk(contents)
-    return "#{text}"
+    return text
   end
+
+  #
+  # 以下access.rb用（rep_exit()でも使用）
+  #
 
   # 入室
   def in(id:nil)

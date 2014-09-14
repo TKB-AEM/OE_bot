@@ -24,6 +24,8 @@ def to_entry(card_id)
   twitter_id = STDIN.gets.chomp.to_s
   User.entry(name:name,twitter_id:twitter_id,card_id:card_id)
   puts "(๑¯Δ¯๑)/ 登録が完了しました!"
+  command = "paplay ./voice/entry.wav"
+  system(command)
 end
 
 begin
