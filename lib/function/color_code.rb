@@ -64,8 +64,7 @@ def c_encode(ohm_str)
       return "#{ans[0]}#{ans[1]}#{ans[2]}#{ans[3]}"
     end
   else
-    time = Time.now.strftime("[%Y-%m-%d %H:%M]")
-    return "errorです。\n#{time}"
+    return "そんな抵抗ないです。"
   end
 
 end
@@ -131,8 +130,7 @@ def c_decode(code)
       return "#{ohm}Ω #{range_str}"
     end
   else
-    time = Time.now.strftime("[%Y-%m-%d %H:%M]")
-    return "errorです。\n#{time}"
+    return "そんな抵抗ないです。"
   end
 
 end

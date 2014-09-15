@@ -44,7 +44,11 @@ def talk(contents)
     return "https://github.com/TKB-AEM/OE_bot/blob/master/README.md"
 
   else
-    wakaran = ["どう返してよいかわかりません。","そんなこと言わないでください。","その言葉はまだ理解できません。","✌(’ω’)｡o(????????????)","（ ˘⊖˘）。o(何言ってるんだこの人)"]
+    wakaran = ["どう返してよいかわかりません。",
+               "そんなこと言わないでください。",
+               "その言葉はまだ理解できません。",
+               "\n✌(’ω’)｡o(????????????)",
+               "\n（ ˘⊖˘）。o(何言ってるんだこの人)"]
     return wakaran.sample
   end
 end
