@@ -24,14 +24,12 @@ begin
 
     # リツイート以外を取得
     if !contents.index("RT") then
-      str_time = Time.now.strftime("[%Y-%m-%d %H:%M]")
 
       # OEbotを呼び出す(他人へのリプを無視)
       if !(/^@\w*/.match(contents))
         if contents =~ /(おーいー|oe|OE|openesys|OpenEsys|open_esys|Open_Esys)(_||\s)(BOT|Bot|bot|ボット|ﾎﾞｯﾄ|ぼっと)/
           rep_text = function.call
-          rep_text += "\n#{str_time}"
-          oebot.post(rep_text,twitter_id:twitter_id,status_id:status_id,debug:debug)
+          oebot.post(rep_text,twitter_id:twitter_id,status_id:status_id,debug:debug) if rep_text
           oebot.fav(status_id:status_id)
         end
       end
@@ -39,8 +37,7 @@ begin
       # 自分へのリプであれば
       if contents =~ /^@open_esys\s*/ then
         rep_text = Function.generate_reply(contents,twitter_id:twitter_id,debug:debug)
-        rep_text += "\n#{str_time}" if rep_text
-        oebot.post(rep_text,twitter_id:twitter_id,status_id:status_id,debug:debug)
+        oebot.post(rep_text,twitter_id:twitter_id,status_id:status_id,debug:debug) if rep_text
       end
 
     end

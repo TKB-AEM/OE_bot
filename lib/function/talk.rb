@@ -2,7 +2,7 @@
 
 def talk(contents)
   # 挨拶
-  if contents =~ /(ありがと|さんくす|Thank)/
+  if contents =~ /(ありがと|さんくす|Thank|thank|thx|Thx)/
     return "どういたしまして。"
   elsif contents =~ /(ただいま|きたく|帰宅)/
     return "おかえりなさい。"

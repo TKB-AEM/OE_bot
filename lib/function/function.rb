@@ -161,7 +161,7 @@ class Function
   def say(contents)
     contents = contents.gsub(/@\w*/,"")
     contents = contents.gsub(/(say|Say|って言って|っていって)/,"")
-    contents = contents.gsub(/(\s|　)/,"")
+    contents = contents.gsub(/(\s|　|&|;)/,"")
     if !contents.empty? && !contents.nil?
       text = "「#{contents}」って言いました。"
       command = "sh ../lib/function/mei/say.sh #{contents}"

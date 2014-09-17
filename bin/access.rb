@@ -46,19 +46,16 @@ begin
       user = BotUser.new(id:id)
       staytus = user.staytus?
       time = Time.now + 60*60*9
-      str_time = Time.now.strftime("[%Y-%m-%d %H:%M]")
 
       if !staytus
         user.entrance(time)
         text = function.in(id:id)
-        text += "\n#{str_time}"
-        oebot.post(text,debug:debug)
+        oebot.post(text,debug:debug) if text
       else
         user.exit(time)
         staying_time = time_to_str(Condition.sum_time(id:id))
         text = function.out(id:id,staying_time:staying_time)
-        text += "\n#{str_time}"
-        oebot.post(text,debug:debug)
+        oebot.post(text,debug:debug) if text
       end
 
     # idが見つからない場合（未登録）
