@@ -9,20 +9,20 @@ class Bot
 
   def initialize(reply:false)
 
-    @keys = YAML.load_file('../list/config.yml')
+    keys = YAML.load_file('../list/config.yml')
     @client = Twitter::REST::Client.new do |config|
-      config.consumer_key = @keys["consumer_key"]
-      config.consumer_secret = @keys["consumer_secret"]
-      config.access_token = @keys["oauth_token"]
-      config.access_token_secret = @keys["oauth_token_secret"]
+      config.consumer_key = keys["consumer_key"]
+      config.consumer_secret = keys["consumer_secret"]
+      config.access_token = keys["oauth_token"]
+      config.access_token_secret = keys["oauth_token_secret"]
     end
 
     if reply then
       TweetStream.configure do |config|
-        config.consumer_key = @keys["consumer_key"]
-        config.consumer_secret = @keys["consumer_secret"]
-        config.oauth_token = @keys["oauth_token"]
-        config.oauth_token_secret = @keys["oauth_token_secret"]
+        config.consumer_key = keys["consumer_key"]
+        config.consumer_secret = keys["consumer_secret"]
+        config.oauth_token = keys["oauth_token"]
+        config.oauth_token_secret = keys["oauth_token_secret"]
         config.auth_method = :oauth
       end
       @timeline = TweetStream::Client.new

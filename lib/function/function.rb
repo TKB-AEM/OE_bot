@@ -120,9 +120,7 @@ class Function
       user.exit(time)
       staying_time = time_to_str(Condition.sum_time(id:user.id))
       text = self.out(id:user.id,staying_time:staying_time)
-      str_time = Time.now.strftime("[%Y-%m-%d %H:%M]")
-      text += "\n#{str_time}"
-      Bot.new.post(text,debug:debug)
+      Bot.new.post(text,debug:debug) if text
       text = "退室処理が完了しました。"
       return text
      end
