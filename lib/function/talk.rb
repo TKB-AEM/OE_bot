@@ -40,8 +40,11 @@ def talk(contents)
     return "私です。"
   elsif contents =~ /(進捗|しんちょく)/
     return "進捗どうですか。"
+
   elsif contents =~ /機能/
     return "https://github.com/TKB-AEM/OE_bot/blob/master/README.md"
+  elsif contents =~ /help/
+    return "\n「誰かおるか」・・在室情報\n「記録」・・・・・・・これまでの記録\n「退室」・・・・・・・退室処理\n「機室」・・・・・・・機室で起動中のPC"
 
   else
     wakaran = ["どう返してよいかわかりません。",

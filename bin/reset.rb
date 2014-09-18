@@ -22,10 +22,8 @@ module Clockwork
         user.condition.save
       end
 
-      str_time = Time.now.strftime("[%Y-%m-%d %H:%M]")
       text = "在室情報をリセットしました。"
-      text += "\n#{str_time}"
-      oebot.post(text,debug:debug)
+      oebot.post(text,debug:debug) if text
 
     when 'backup.job'
       system("ruby ../control/members_export.rb")
