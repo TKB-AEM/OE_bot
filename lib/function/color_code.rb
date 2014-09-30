@@ -44,9 +44,7 @@ def c_encode(ohm_str)
   end
 
   digits_num = ohm[0].to_s.length - 2
-  if !color.key(digits_num)
-    error = true
-  end
+  error = true if !color.key(digits_num) || ohm[0].to_s =~ /e/
 
   if !error then
     if digits_num >2
@@ -63,6 +61,7 @@ def c_encode(ohm_str)
       ans[2] = color.key(0)
       return "#{ans[0]}#{ans[1]}#{ans[2]}#{ans[3]}"
     end
+
   else
     return "そんな抵抗ないです。"
   end
@@ -76,61 +75,58 @@ def c_decode(code)
   range = {"茶" => 1,"赤" => 2,"緑" => 0.5,"青" => 0.25,"紫" => 0.1,"橙" => 0.05,"金" => 5,"銀" => 10}
 
   digits = code.split("")
+  ans = nil
 
-  error = false
+  catch(:error) do
 
-  # 文字数が3か4のものだけ受け付ける
-  if digits.size < 3 || digits.size > 4
-    error = true
-  end
+    # 文字数が3か4のものだけ受け付ける
+    throw :error if digits.size < 3 || digits.size > 4
 
-  # 上記にない色や漢字が送られてきたら
-  digits.each{ |digit|
-    if !color[digit]
-      error = true
+    # 上記にない色や漢字が送られてきたら
+    digits.each{ |digit| throw :error unless color[digit] }
+
+    # もし数値のところに金、銀がきたら
+    throw :error if color[digits[0]] < 0 || color[digits[1]] < 0
+    
+    # 誤差のところに変な色がきたら(空白はOK)
+    throw :error if digits[3] && !range[digits[3]]
+
+    range_str = ""
+    if digits.size == 4
+      range_str = "±#{range[digits[3]]}％"
+    else
+      range_str = "±20％"
     end
-  }
 
-  # もし数値のところに金、銀がきたら
-  if color[digits[0]] < 0 || color[digits[1]] < 0
-    error = true
-  # 誤差のところに変な色がきたら(空白はOK)
-  elsif digits[3] && !range[digits[3]]
-    error = true
-  end
-
-  range_str = ""
-  if digits.size == 4
-    range_str = "±#{range[digits[3]]}％"
-  else
-    range_str = "±20％"
-  end
-
-  if !error then
     ohm = 0.0
     ohm += color[digits[0]] * 10
     ohm += color[digits[1]]
     # 浮動小数点の小数第3位を四捨五入する
     ohm = sprintf("%.2f",ohm*(10**color[digits[2]])).to_f
     digits_num = ohm.to_s.length - 2
+
     if digits_num >= 4 && digits_num < 7
       ohm = ohm/1000
       # 2.2kΩとかはそのままで10.0Ωとかを10Ωにする
       ohm = ohm.to_s.gsub(/\.0/,"")
-      return "#{ohm}kΩ #{range_str}"
+      ans = "#{ohm}kΩ #{range_str}"
+
     elsif digits_num >= 7
       ohm = ohm/1000000
       ohm = ohm.to_s.gsub(/\.0/,"")
-      return "#{ohm}MΩ #{range_str}"
+      ans = "#{ohm}MΩ #{range_str}"
+
     # 例えば0.01が01になるのを防ぐ(0.0は0に)
     elsif ohm != 0.0 && ohm < 0.1
-      return "#{ohm}Ω #{range_str}"
+      ans = "#{ohm}Ω #{range_str}"
+
     else
       ohm = ohm.to_s.gsub(/\.0/,"")
-      return "#{ohm}Ω #{range_str}"
+      ans = "#{ohm}Ω #{range_str}"
     end
-  else
-    return "そんな抵抗ないです。"
   end
+
+  ans ||= "そんな抵抗ないです。"
+  return ans
 
 end

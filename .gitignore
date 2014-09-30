@@ -9,6 +9,7 @@ OE_bot.db
 destroy.rb
 show.rb
 staytus.rb
+update.rb
 
 test.rb
 tl_debug.rb

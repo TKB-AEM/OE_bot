@@ -111,19 +111,24 @@ class Function
 
   # リプで退室する
   def rep_exit(twitter_id:"",debug:false)
-    user = BotUser.new(twitter_id:twitter_id)
-    if !(user.staytus?)
-      text = "あなたは部屋にいません。"
-      return text
+
+    if User.find_by_twitter_id(twitter_id)
+      user = BotUser.new(twitter_id:twitter_id)
+      if user.staytus?
+        time = Time.now + 60*60*9
+        user.exit(time)
+        staying_time = time_to_str(Condition.sum_time(id:user.id))
+        text = self.out(id:user.id,staying_time:staying_time)
+        Bot.new.post(text,debug:debug) if text
+        text = "退室処理が完了しました。"
+      else
+        text = "あなたは部屋にいません。"
+      end
     else
-      time = Time.now + 60*60*9
-      user.exit(time)
-      staying_time = time_to_str(Condition.sum_time(id:user.id))
-      text = self.out(id:user.id,staying_time:staying_time)
-      Bot.new.post(text,debug:debug) if text
-      text = "退室処理が完了しました。"
-      return text
-     end
+      text = "3L502で登録してください。"
+    end
+
+    return text
   end
 
   # ping
@@ -158,8 +163,8 @@ class Function
   # OpenJTalkでしゃべらせる
   def say(contents)
     contents = contents.gsub(/@\w*/,"")
-    contents = contents.gsub(/(say|Say|って言って|っていって)/,"")
-    contents = contents.gsub(/(\s|　|&|;)/,"")
+    contents = contents.sub(/(say|Say|って言って|っていって)/,"")
+    contents = contents.gsub(/(\s|　|&|;|`|$|＄|emacs|rm|SHELL|irb)/,"")
     if !contents.empty? && !contents.nil?
       text = "「#{contents}」って言いました。"
       command = "sh ../lib/function/mei/say.sh #{contents}"
@@ -182,7 +187,14 @@ class Function
   def color_decode(contents)
     contents = contents.gsub(/@\w*/,"")
     contents = contents.gsub(/(\s|　|,|、)/,"")
-    text = c_decode(contents)
+    text = nil
+    catch(:error) do
+      contents.split("").each do |color|
+        throw :error unless color =~ /(黒|茶|赤|橙|黄|緑|青|紫|灰|白|金|銀)/
+      end
+      text = c_decode(contents)
+    end
+    text ||= self.conversation(contents)
     return text
   end
 

@@ -43,8 +43,8 @@ def talk(contents)
 
   elsif contents =~ /機能/
     return "https://github.com/TKB-AEM/OE_bot/blob/master/README.md"
-  elsif contents =~ /help/
-    return "\n「誰かおるか」・・在室情報\n「記録」・・・・・・・これまでの記録\n「退室」・・・・・・・退室処理\n「機室」・・・・・・・機室で起動中のPC"
+  elsif contents =~ /(help|ヘルプ)/
+    return "\n「おるか」--在室情報\n「記録」----これまでの記録\n「退室」----退室処理\n「機室」----機室で起動中のPC\n「機能」----機能詳細ページ"
 
   else
     wakaran = ["どう返してよいかわかりません。",
