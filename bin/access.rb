@@ -5,7 +5,7 @@ require "../lib/card.rb"
 
 oebot = Bot.new()
 function = Function.new()
-card = Card.new()
+# card = Card.new()
 list = Array.new()
 i = 0
 input = ""
@@ -37,9 +37,12 @@ begin
     end
 
     puts "ฅ(๑'Δ'๑) カードを置いてください。"
-    card_id = Card.idnum()
     # card_id = STDIN.gets.to_s.chomp
-    id = card.check(card_id)
+    card = Card.new()
+    card_id = card.idnum
+    id = card.user_id(card_id)
+    card.pasori.close
+    card.felica.close
 
     # idが既にある場合（登録済み）
     if id
