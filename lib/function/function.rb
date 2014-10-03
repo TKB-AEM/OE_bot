@@ -18,8 +18,8 @@ class Function
     function = new
     rep_text = ""
 
-    if contents =~ /(おーいー|oe|OE|openesys|OpenEsys|open_esys|Open_Esys)(_||\s)(BOT|Bot|bot|ボット|ﾎﾞｯﾄ|ぼっと)/
-      rep_text = function.call()
+    if contents =~ /^@\w*(\s|　)(おーいー|oe|OE)(_||\s)(BOT|Bot|bot|ボット|ﾎﾞｯﾄ|ぼっと)$/
+      rep_text = "はい。"
 
     elsif contents =~ /(誰か|だれか|誰が|だれが|おるか)/
       rep_text = function.being()
@@ -60,11 +60,20 @@ class Function
     p em
   end
 
+  #
+  # いわゆる空中に反応する用
+  #
+
   # OEbotを呼び出す
-  def call()
-    text = "はい。"
+  def call(contents)
+    text = nil
+    text = "はい。" if contents =~ /^(おーいー|oe|OE)(_||\s)(BOT|Bot|bot|ボット|ﾎﾞｯﾄ|ぼっと)$/
     return text
   end
+
+  #
+  # リプライ用
+  #
 
   # ダレカオルカ
   def being()

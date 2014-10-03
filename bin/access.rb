@@ -5,10 +5,6 @@ require "../lib/card.rb"
 
 oebot = Bot.new()
 function = Function.new()
-# card = Card.new()
-list = Array.new()
-i = 0
-input = ""
 
 mode = ARGV[0]
 debug = false
@@ -17,15 +13,18 @@ if mode == "debug"
 end
 
 # 登録用
-def to_entry(card_id)
+def to_entry(oebot,card_id,debug)
   print "ฅ(๑'Δ'๑) 名前を入力してください："
   name = STDIN.gets.chomp.to_s
   print "ฅ(๑'Δ'๑) twitter idを入力してください："
   twitter_id = STDIN.gets.chomp.to_s
+  twitter_id = twitter_id.gsub(/@/,"")
   User.entry(name:name,twitter_id:twitter_id,card_id:card_id)
   puts "(๑¯Δ¯๑)/ 登録が完了しました!"
   command = "paplay ./voice/entry.wav"
   system(command)
+  rep_text = "ようこそ、#{name}さん!"
+  oebot.post(rep_text,twitter_id:twitter_id,debug:debug)
 end
 
 begin
@@ -37,7 +36,10 @@ begin
     end
 
     puts "ฅ(๑'Δ'๑) カードを置いてください。"
+
     # card_id = STDIN.gets.to_s.chomp
+    # id = Card::debug(card_id)
+
     card = Card.new()
     card_id = card.idnum
     id = card.user_id(card_id)
@@ -69,7 +71,7 @@ begin
         input = STDIN.gets.to_s.chomp
 
         if input == "y" || input == "Y"
-          to_entry(card_id)
+          to_entry(oebot,card_id,debug)
           break
         elsif input == "n" || input == "N"
           break

@@ -29,11 +29,21 @@ class Card
   # カードのIDを渡すとユーザーのidを返す
   def user_id(card_id = "")
     user = User.find_by_card_id(card_id)
-    if !(user)
-      return false
-    else
+    if user
       id = user.id
       return id
+    else
+      return false
+    end
+  end
+
+  def Card::debug(card_id = "")
+    user = User.find_by_card_id(card_id)
+    if user
+      id = user.id
+      return id
+    else
+      return false
     end
   end
 

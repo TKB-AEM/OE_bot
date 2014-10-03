@@ -1,7 +1,7 @@
 # OEbot [@open\_esys](https://twitter.com/open_esys)   
 
 ## 召喚の呪文   
-　例：OE_bot、OpenEsysBot、おーいーぼっと、など   
+　例：OE_bot、OE BOT、おーいーぼっと、など   
 
 ## 入退室に関する機能
 - **入退室報告**   

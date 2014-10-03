@@ -5,9 +5,9 @@ require '../lib/function/function.rb'
 
 oebot = Bot.new(reply:true)
 function = Function.new
-debug = false
-mode = ARGV[0]
 
+mode = ARGV[0]
+debug = false
 if mode == "debug"
   debug = true
   puts "debugモードです"
@@ -27,8 +27,8 @@ begin
 
       # OEbotを呼び出す(他人へのリプを無視)
       if !(/^@\w*/.match(contents))
-        if contents =~ /(おーいー|oe|OE|openesys|OpenEsys|open_esys|Open_Esys)(_||\s)(BOT|Bot|bot|ボット|ﾎﾞｯﾄ|ぼっと)/
-          rep_text = function.call
+        if contents =~ /(おーいー|oe|OE)(_||\s)(BOT|Bot|bot|ボット|ﾎﾞｯﾄ|ぼっと)/
+          rep_text = function.call(contents)
           oebot.post(rep_text,twitter_id:twitter_id,status_id:status_id,debug:debug) if rep_text
           oebot.fav(status_id:status_id)
         end

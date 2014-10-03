@@ -44,6 +44,7 @@ class Bot
 
     # リプライでない（リプライでない投稿で140字を超える内容はない）
     else
+      text = "@#{twitter_id} #{text}" if twitter_id
       text += "\n#{str_time}"
       @client.update(text) unless debug
       puts "#{text}\n\n"
