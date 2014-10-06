@@ -11,8 +11,8 @@ module Clockwork
     case job
 
     when 'reset.job'
-      oebot = Bot.new
       debug = false
+      oebot = Bot.new(debug:debug)
 
       last_id = User.last.id
       last_id.times do |id|
@@ -23,7 +23,7 @@ module Clockwork
       end
 
       text = "在室情報をリセットしました。"
-      oebot.post(text,debug:debug) if text
+      oebot.post(text) if text
 
     when 'backup.job'
       system("ruby ../control/members_export.rb")

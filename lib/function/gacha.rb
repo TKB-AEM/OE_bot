@@ -2,14 +2,10 @@
 
 class Gacha
   attr_accessor :random
-  def initialize()
+  def initialize(buns_list = [])
     @random = Random.new(Time.new.to_i)
     @grades = ["A+","A","B","C","D"]
-    @buns = Array.new()
-    # open("./buns_list.txt").each do |bun|
-    open("../list/buns_list.txt").each do |bun|
-      @buns << bun.to_s.chomp
-    end
+    @buns = buns_list
   end
 
   def grades_gacha()

@@ -3,14 +3,15 @@
 
 require "../lib/card.rb"
 
-oebot = Bot.new()
-function = Function.new()
-
-mode = ARGV[0]
 debug = false
-if mode == "debug"
-  debug = true
+pasori = true
+OptionParser.new do |opt|
+  opt.on('-d', '--debug','Switch to debug mode'){|v| debug = v}
+  opt.on('--[no-]pasori','Select whether to use PaSoRi or not'){|v| pasori = v}
+  opt.parse!(ARGV)
 end
+
+oebot = Bot.new(debug:debug)
 
 # 登録用
 def to_entry(oebot,card_id,debug)
@@ -23,28 +24,29 @@ def to_entry(oebot,card_id,debug)
   puts "(๑¯Δ¯๑)/ 登録が完了しました!"
   command = "paplay ./voice/entry.wav"
   system(command)
-  rep_text = "ようこそ、#{name}さん!"
-  oebot.post(rep_text,twitter_id:twitter_id,debug:debug)
+  rep_text = "ようこそ、#{name}さん!フォローにはしばらく時間がかかることがあるかもです。"
+  oebot.post(rep_text,twitter_id:twitter_id)
 end
 
 begin
   loop do
 
     system("clear")
-    if debug
-      puts "debugモードです"
-    end
+    puts "debug mode" if debug
 
     puts "ฅ(๑'Δ'๑) カードを置いてください。"
 
-    # card_id = STDIN.gets.to_s.chomp
-    # id = Card::debug(card_id)
-
-    card = Card.new()
-    card_id = card.idnum
-    id = card.user_id(card_id)
-    card.pasori.close
-    card.felica.close
+    # PaSoRiがない場合番号を手動入力する
+    if pasori
+      card = Card.new()
+      card_id = card.idnum
+      id = card.user_id(card_id)
+      card.pasori.close
+      card.felica.close
+    else
+      card_id = STDIN.gets.to_s.chomp
+      id = Card::debug(card_id)
+    end
 
     # idが既にある場合（登録済み）
     if id
@@ -54,13 +56,13 @@ begin
 
       if !staytus
         user.entrance(time)
-        text = function.in(id:id)
-        oebot.post(text,debug:debug) if text
+        text = Function.in(id:id)
+        oebot.post(text) if text
       else
         user.exit(time)
         staying_time = time_to_str(Condition.sum_time(id:id))
-        text = function.out(id:id,staying_time:staying_time)
-        oebot.post(text,debug:debug) if text
+        text = Function.out(id:id,staying_time:staying_time)
+        oebot.post(text) if text
       end
 
     # idが見つからない場合（未登録）
