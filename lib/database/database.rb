@@ -9,7 +9,9 @@ ActiveRecord::Base.establish_connection(
 
 class User < ActiveRecord::Base
 
-  validates :name, :presence => true
+  validates :name,       :presence => true, :uniqueness => true
+  validates :twitter_id, :presence => true, :uniqueness => true
+  validates :card_id,    :presence => true, :uniqueness => true
   I18n.enforce_available_locales = false
   has_one :condition ,:dependent => :destroy
 
@@ -17,14 +19,13 @@ class User < ActiveRecord::Base
   def User::entry(name:"",twitter_id:"",card_id:"")
     user = self.new do |u|
       u.name = name
-      u.twitter_id = twitter_id
+      u.twitter_id = twitter_id unless twitter_id.empty?
+      u.twitter_id ||= card_id
       u.card_id = card_id
     end
     user.save
 
-    if !user.save # validates
-      puts "entry error #{self.errors.messages}\n\n"
-    end
+    return user.errors.messages if !user.save
 
     # first_or_createをしなくてよくなる
     condition = Condition.new do |c|
@@ -34,6 +35,7 @@ class User < ActiveRecord::Base
       c.staying_time = 0
     end
     condition.save
+    return nil
 
   end
 
