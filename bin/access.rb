@@ -14,18 +14,64 @@ end
 oebot = Bot.new(debug:debug)
 
 # 登録用
-def to_entry(oebot,card_id,debug)
-  print "ฅ(๑'Δ'๑) 名前を入力してください："
-  name = STDIN.gets.chomp.to_s
-  print "ฅ(๑'Δ'๑) twitter idを入力してください："
-  twitter_id = STDIN.gets.chomp.to_s
-  twitter_id = twitter_id.gsub(/@/,"")
-  User.entry(name:name,twitter_id:twitter_id,card_id:card_id)
-  puts "(๑¯Δ¯๑)/ 登録が完了しました!"
-  command = "paplay ./voice/entry.wav"
-  system(command)
-  rep_text = "ようこそ、#{name}さん!フォローにはしばらく時間がかかることがあるかもです。"
-  oebot.post(rep_text,twitter_id:twitter_id)
+def to_entry(oebot,card_id:nil)
+  twitter_error_message = "※半角英数字およびアンダーバーのみでお願いします(@は不要です)"
+  system("clear")
+  name = ""
+  twitter_id = ""
+
+  # 名前を入力
+  loop do
+    print "ฅ(๑'Δ'๑) 名前を入力してください："
+    name = STDIN.gets.chomp.to_s
+    system("clear")
+    break unless name.empty?
+    puts "※何か入力してください"
+  end
+
+  # ツイッターIDを入力
+  loop do
+    puts "※Twitterと連携しない場合は何も入力せずにEnterを押してください"
+    print "ฅ(๑'Δ'๑) twitter idを入力してください："
+    twitter_id = STDIN.gets.chomp.to_s
+
+    # 半角英数字およびアンダーバー以外を除外
+    if twitter_id.split("").any? {|v| v.match(/[^ -~]/)}
+      system("clear")
+      puts twitter_error_message
+      redo
+    elsif twitter_id.split("").any? {|v| v.match(/[^\w]/)}
+      system("clear")
+      puts twitter_error_message
+      redo
+    end
+    break
+  end
+
+  error_messages = User.entry(name:name,twitter_id:twitter_id,card_id:card_id)
+
+  # なんちゃって一意性
+  if error_messages
+    error_messages.each_key do |key|
+      column = case key
+      when :name then "名前"
+      when :twitter_id then "ツイッターアカウント"
+      when :card_id then "FeliCa"
+      end
+      puts "\n（☝◞‸◟）☝ その#{column}は既に登録されています！"
+    end
+  else
+    puts "(๑¯Δ¯๑)/ 登録が完了しました!"
+    command = "paplay ./voice/entry.wav"
+    system(command)
+    unless twitter_id.empty?
+      rep_text = "ようこそ、#{name}さん!フォローにはしばらく時間がかかることがあるかもです。"
+      oebot.post(rep_text,twitter_id:twitter_id)
+    end
+  end
+
+rescue Interrupt
+  return nil
 end
 
 begin
@@ -73,7 +119,7 @@ begin
         input = STDIN.gets.to_s.chomp
 
         if input == "y" || input == "Y"
-          to_entry(oebot,card_id,debug)
+          to_entry(oebot,card_id:card_id)
           break
         elsif input == "n" || input == "N"
           break
