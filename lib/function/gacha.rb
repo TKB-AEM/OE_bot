@@ -1,7 +1,9 @@
 # coding:utf-8
 
 class Gacha
+
   attr_accessor :random
+
   def initialize(buns_list = [])
     @random = Random.new(Time.new.to_i)
     @grades = ["A+","A","B","C","D"]
@@ -26,12 +28,7 @@ class Gacha
   end
 
   def buns_gacha()
-    rarity = @random.rand(31)
-    if rarity == 30
-      return "カレーパン"
-    else
-      return @buns[@random.rand(@buns.size)]
-    end
+    return @buns[@random.rand(@buns.size)]
   end
 
 end
