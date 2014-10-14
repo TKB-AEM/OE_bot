@@ -10,7 +10,7 @@ module Clockwork
 
     case job
 
-    when 'reset.job'
+    when 'reset_job'
       debug = false
       oebot = Bot.new(debug:debug)
 
@@ -25,14 +25,14 @@ module Clockwork
       text = "在室情報をリセットしました。"
       oebot.post(text) if text
 
-    when 'backup.job'
-      system("ruby ../control/members_export.rb")
+    when 'backup_job'
+      system("ruby ../control/export.rb")
     end
 
   end
 
   # 朝６時になったら部屋にいる人をクリアする
-  every(1.day, 'reset.job', :at => '06:00')
+  every(1.day, 'reset_job', :at => '06:00')
   # データベースのバックアップをとる
-  every(1.day, 'backup.job', :at => '06:30')
+  every(1.day, 'backup_job', :at => '06:30')
 end
