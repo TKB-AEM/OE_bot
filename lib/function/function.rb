@@ -12,8 +12,6 @@ PostError = Class.new(StandardError)
 
 module Function
 
-  include ColorCode
-
   def generate_reply(contents = "",oebot,twitter_id:nil)
 
     rep_text = case contents
@@ -96,7 +94,7 @@ module Function
     if user
       condition = Condition.find_by_user_id(user.id)
       access_times = condition.access_times
-      staying_time = time_to_str(condition.staying_time)
+      staying_time = (condition.staying_time).minutes_to_s
       text = "\nこれまでの訪問回数は#{access_times}回、\n合計滞在時間は#{staying_time}です。"
     else
       text = "3L502で登録してください。"
@@ -113,7 +111,7 @@ module Function
       if user.staytus?
         time = Time.now + 60*60*9
         user.exit(time)
-        staying_time = time_to_str(Condition.sum_time(id:user.id))
+        staying_time = (Condition.sum_time(id:user.id)).minutes_to_s
         text = out(id:user.id,staying_time:staying_time)
         oebot.post(text) if text
         text = "退室処理が完了しました。"

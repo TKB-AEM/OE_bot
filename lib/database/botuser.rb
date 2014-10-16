@@ -1,7 +1,7 @@
 #coding:utf-8
 
 require_relative "./database.rb"
-require_relative "../database/time_to_str.rb"
+require_relative "../database/helper.rb"
 
 class BotUser
 
