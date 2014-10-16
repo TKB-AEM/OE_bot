@@ -106,7 +106,7 @@ begin
         oebot.post(text) if text
       else
         user.exit(time)
-        staying_time = time_to_str(Condition.sum_time(id:id))
+        staying_time = (Condition.sum_time(id:id)).minutes_to_s
         text = Function.out(id:id,staying_time:staying_time)
         oebot.post(text) if text
       end
