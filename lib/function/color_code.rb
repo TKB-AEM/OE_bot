@@ -30,18 +30,14 @@ module ColorCode
     ohm[1] = ohm[1].to_f
 
     # 誤差が指定されなかったら(nilであったらto_fメソッドで0.0に)
-    if ohm[1] == 0.0
-      ans[3] = ""
     # 指定されていてもそれがrangeの値にないものだったら
-    elsif !range.key(ohm[1])
-      ans[3] = ""
-    else
-      ans[3] = range.key(ohm[1])
-    end
+    ans[3] = "" if ohm[1] == 0.0 || !range.key(ohm[1])
+    ans[3] ||= range.key(ohm[1])
 
-    if ohm_str =~ /(k|K|ｋ|キロ)/
+    case(ohm_str)
+    when /(k|K|ｋ|キロ)/
       ohm[0] *= 1000
-    elsif ohm_str =~ /(m|M|ｍ|メガ)/
+    when /(m|M|ｍ|メガ)/
       ohm[0] *= 1000000
     end
 
@@ -88,16 +84,12 @@ module ColorCode
 
       # もし数値のところに金、銀がきたら
       throw :error if color[digits[0]] < 0 || color[digits[1]] < 0
-    
+
       # 誤差のところに変な色がきたら(空白はOK)
       throw :error if digits[3] && !range[digits[3]]
 
-      range_str = ""
-      if digits.size == 4
-        range_str = "±#{range[digits[3]]}％"
-      else
-        range_str = "±20％"
-      end
+      range_str = "±#{range[digits[3]]}％" if digits.size == 4
+      range_str ||= "±20％"
 
       ohm = 0.0
       ohm += color[digits[0]] * 10
