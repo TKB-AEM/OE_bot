@@ -12,8 +12,6 @@ PostError = Class.new(StandardError)
 
 module Function
 
-  include ColorCode
-
   def generate_reply(contents = "",oebot,twitter_id:nil)
 
     rep_text = case contents
