@@ -1,13 +1,12 @@
 #coding:utf-8
 
+require_relative "./helper.rb"
+
 module ColorCode
 
-  # 抵抗値 -> カラーコード
-  def encode(ohm_str)
-
-    color = {"黒" => 0,"茶" => 1,"赤" => 2,"橙" => 3,"黄" => 4,"緑" => 5,"青" => 6,"紫" => 7,"灰" => 8,"白" => 9,"金" => -1,"銀" => -2}
-    range = {"茶" => 1,"赤" => 2,"緑" => 0.5,"青" => 0.25,"紫" => 0.1,"橙" => 0.05,"金" => 5,"銀" => 10,"" => 20}
-
+  def encode_filter(ohm_str)
+    ohm_str = ohm_str.gsub(/@\w*/,"")
+    ohm_str = ohm_str.gsub(/(Ω|オーム|\s|　)/,"")
     ohm_str = ohm_str.gsub(/０/,"0")
     ohm_str = ohm_str.gsub(/１/,"1")
     ohm_str = ohm_str.gsub(/２/,"2")
@@ -20,6 +19,36 @@ module ColorCode
     ohm_str = ohm_str.gsub(/９/,"9")
     ohm_str = ohm_str.gsub(/(％|%|㌫|ぱーせんと|パーセント|ﾊﾟｰｾﾝﾄ)/,"")
     ohm_str = ohm_str.gsub(/(±|プラスマイナス|ぷらすまいなす|プラマイ|ぷらまい)/,",")
+    ohm = ohm_str.split(",")
+    return if ohm[0].nil?
+
+    # 誤差指定の省略は可能
+    # また、"K"、"メガ"などはnumber?の判定で弾かれるので一時的にエスケープ
+    if ohm[1].nil?
+      return ohm_str if ohm[0].gsub(/(k|K|ｋ|キロ|m|M|ｍ|メガ)/,"").number?
+    else
+      return ohm_str if ohm[0].gsub(/(k|K|ｋ|キロ|m|M|ｍ|メガ)/,"").number? && ohm[1].number?
+    end
+    return
+  end
+
+  def decode_filter(code)
+    code = code.gsub(/@\w*/,"")
+    code = code.gsub(/(\s|　|,|、)/,"")
+    code.split("").each do |color|
+      return unless color =~ /(黒|茶|赤|橙|黄|緑|青|紫|灰|白|金|銀)/
+    end
+    return code
+  end
+
+  # 抵抗値 -> カラーコード
+  def encode(ohm_str)
+
+    ohm_str = encode_filter(ohm_str)
+    return if ohm_str.nil?
+
+    color = {"黒" => 0,"茶" => 1,"赤" => 2,"橙" => 3,"黄" => 4,"緑" => 5,"青" => 6,"紫" => 7,"灰" => 8,"白" => 9,"金" => -1,"銀" => -2}
+    range = {"茶" => 1,"赤" => 2,"緑" => 0.5,"青" => 0.25,"紫" => 0.1,"橙" => 0.05,"金" => 5,"銀" => 10,"" => 20}
 
     # ohm[0]が抵抗値でohm[1]が誤差となる
     ohm = ohm_str.split(",")
@@ -67,6 +96,9 @@ module ColorCode
 
   # カラーコード -> 抵抗値
   def decode(code)
+
+    code = decode_filter(code)
+    return if code.nil?
 
     color = {"黒" => 0,"茶" => 1,"赤" => 2,"橙" => 3,"黄" => 4,"緑" => 5,"青" => 6,"紫" => 7,"灰" => 8,"白" => 9,"金" => -1,"銀" => -2}
     range = {"茶" => 1,"赤" => 2,"緑" => 0.5,"青" => 0.25,"紫" => 0.1,"橙" => 0.05,"金" => 5,"銀" => 10}
@@ -123,5 +155,5 @@ module ColorCode
     return ans
   end
 
-  module_function :encode,:decode
+  module_function :encode_filter, :decode_filter, :encode, :decode
 end

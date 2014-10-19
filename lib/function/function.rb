@@ -8,13 +8,13 @@ require_relative "./color_code.rb"
 require_relative "../database/botuser.rb"
 require_relative "../bot.rb"
 
-PostError = Class.new(StandardError)
-
 module Function
 
   def generate_reply(contents = "",oebot,twitter_id:nil)
 
     rep_text = case contents
+      when /(say|って言って|っていって)/i
+        say(contents)
       when /(誰か|だれか|誰が|だれが|おるか)/
         being()
       when /(記録|きろく)/
@@ -27,22 +27,19 @@ module Function
         esys_pinger()
       when /L棟(パン|ぱん)(ガチャ|がちゃ)/
         ltou_gacha(oebot.config['buns_list'])
-      when /(say|って言って|っていって)/i
-        say(contents)
       when /(Ω|オーム)/
-        cc_encode(contents)
+        ColorCode.encode(contents)
       when /(黒|茶|赤|橙|黄|緑|青|紫|灰|白|金|銀)/
-        cc_decode(contents)
+        ColorCode.decode(contents)
       else # どのキーワードにも当てはまらなかったら
         conversation(contents,table:oebot.rep_table)
       end
 
-    raise PostError.new('cannot reply, no text') if rep_text.nil? || rep_text.empty?
-    return rep_text if rep_text
+    rep_text ||= conversation(contents,table:oebot.rep_table)
+    return rep_text
 
-  rescue => em
-    puts Time.now
-    p em
+  rescue
+    logs "機能呼び出し error! #{$!.class}: #{$!}\n#{$@[0]}"
   end
 
   #
@@ -82,9 +79,8 @@ module Function
       return text
     end
 
-  rescue => em
-    print "being error "
-    p em
+  rescue
+    logs "おるか error! #{$!.class}: #{$!}\n#{$@[0]}"
   end
 
   # 訪問回数と合計滞在時間を返す
@@ -169,29 +165,6 @@ module Function
     return text
   end
 
-  # 抵抗値 -> カラーコード (color_code.rb)
-  def cc_encode(contents)
-    contents = contents.gsub(/@\w*/,"")
-    contents = contents.gsub(/(Ω|オーム|\s|　)/,"")
-    text = ColorCode.encode(contents)
-    return text
-  end
-
-  # カラーコード -> 抵抗値 (color_code.rb)
-  def cc_decode(contents)
-    contents = contents.gsub(/@\w*/,"")
-    contents = contents.gsub(/(\s|　|,|、)/,"")
-    text = nil
-    catch(:error) do
-      contents.split("").each do |color|
-        throw :error unless color =~ /(黒|茶|赤|橙|黄|緑|青|紫|灰|白|金|銀)/
-      end
-      text = ColorCode.decode(contents)
-    end
-    text ||= self.conversation(contents)
-    return text
-  end
-
   # どのキーワードにも当てはまらなかったら
   def conversation(contents,table:nil)
     text = nil
@@ -240,7 +213,6 @@ module Function
     :generate_reply,
     :call,
     :being,:record,:rep_exit,:ping,:esys_pinger,:ltou_gacha,:say,
-    :cc_encode,:cc_decode,
     :conversation,
     :in, :out
 
