@@ -63,4 +63,14 @@ class BotUser
     p em
   end
 
+  def rank
+    members_num = User.last.id
+    my_rank = members_num
+    User.all.each do |u|
+      next if @user.id == u.id
+      my_rank -= 1 if u.condition.staying_time <= @user.condition.staying_time
+    end
+    return my_rank
+  end
+
 end

@@ -92,6 +92,9 @@ module Function
       access_times = condition.access_times
       staying_time = (condition.staying_time).minutes_to_s
       text = "\nこれまでの訪問回数は#{access_times}回、\n合計滞在時間は#{staying_time}です。"
+      members_num = User.last.id
+      rank = BotUser.new(id:user.id).rank
+      text += "\n滞在時間ランキング#{members_num}人中#{rank}位"
     else
       text = "3L502で登録してください。"
     end
