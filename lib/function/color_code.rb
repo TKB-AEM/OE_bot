@@ -74,24 +74,41 @@ module ColorCode
     error = true if !color.key(digits_num) || ohm[0].to_s =~ /e/
 
     if !error then
-      if digits_num >2
+      # 2桁以上の抵抗（0.01とかがdigits_num == 2なので回避）
+      if digits_num > 1 && ohm[0] > 1
         ohm[0] = ohm[0]/(10**(digits_num-2))
         ohm[0] = ohm[0].to_i
         ans[0] = color.key(ohm[0]/10)
         ans[1] = color.key(ohm[0] - (ohm[0]/10)*10)
         ans[2] = color.key(digits_num - 2)
-        return "#{ans[0]}#{ans[1]}#{ans[2]}#{ans[3]}"
-      else
-        ohm[0] = ohm[0].to_i
-        ans[0] = color.key(ohm[0]/10)
-        ans[1] = color.key(ohm[0] - (ohm[0]/10)*10)
-        ans[2] = color.key(0)
-        return "#{ans[0]}#{ans[1]}#{ans[2]}#{ans[3]}"
-      end
+        ans_str = "#{ans[0]}#{ans[1]}#{ans[2]}#{ans[3]}"
 
-    else
-      return "そんな抵抗ないです。"
+      # 1桁の抵抗
+      elsif digits_num == 1 && ohm[0] >= 1
+        ans[0] = color.key(ohm[0].to_i)
+        ohm[0] = (ohm[0]*10).to_i
+        ans[1] = color.key(ohm[0] - (ohm[0]/10)*10)
+        ans[2] = color.key(-1)
+        ans_str = "#{ans[0]}#{ans[1]}#{ans[2]}#{ans[3]}"
+
+      # 0.1以上で1より小さい抵抗
+      elsif 0.1 <= ohm[0] && ohm[0] < 1
+        ans[0] = color.key((ohm[0]*10).to_i)
+        ohm[0] = (ohm[0]*100).to_i
+        ans[1] = color.key(ohm[0] - (ohm[0]/10)*10)
+        ans[2] = color.key(-2)
+        ans_str = "#{ans[0]}#{ans[1]}#{ans[2]}#{ans[3]}"
+
+      elsif ohm[0] == 0.0
+        ans_str = "黒"
+
+      else
+        ans_str = "それめっちゃ小さくないですか。"
+      end
     end
+
+    ans_str ||= "そんな抵抗ないです。"
+    return ans_str
   end
 
   # カラーコード -> 抵抗値
@@ -105,6 +122,7 @@ module ColorCode
 
     digits = code.split("")
     ans = nil
+    ans = "0Ω" if code == "黒"
 
     catch(:error) do
 
@@ -140,6 +158,7 @@ module ColorCode
         ohm = ohm/1000000
         ohm = ohm.to_s.gsub(/\.0/,"")
         ans = "#{ohm}MΩ #{range_str}"
+        ans += "\nですが値が大き過ぎます。" if digits_num > 8
 
       # 例えば0.01が01になるのを防ぐ(0.0は0に)
       elsif ohm != 0.0 && ohm < 0.1
