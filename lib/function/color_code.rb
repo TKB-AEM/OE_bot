@@ -64,10 +64,8 @@ module ColorCode
     ans[3] ||= range.key(ohm[1])
 
     case(ohm_str)
-    when /(k|K|ｋ|キロ)/
-      ohm[0] *= 1000
-    when /(m|M|ｍ|メガ)/
-      ohm[0] *= 1000000
+    when /(k|K|ｋ|キロ)/ then ohm[0] *= 1000
+    when /(m|M|ｍ|メガ)/ then ohm[0] *= 1000000
     end
 
     digits_num = ohm[0].to_s.length - 2
@@ -101,7 +99,6 @@ module ColorCode
 
       elsif ohm[0] == 0.0
         ans_str = "黒"
-
       else
         ans_str = "それめっちゃ小さくないですか。"
       end
@@ -122,7 +119,11 @@ module ColorCode
 
     digits = code.split("")
     ans = nil
-    ans = "0Ω" if code == "黒"
+
+    ans = case code
+    when /^黒$/                 then "0Ω"
+    when /^黒{3}.?$/, /^黒{2}$/ then "0Ωは黒一本です。"
+    end
 
     catch(:error) do
 
@@ -139,7 +140,7 @@ module ColorCode
       throw :error if digits[3] && !range[digits[3]]
 
       range_str = "±#{range[digits[3]]}％" if digits.size == 4
-      range_str ||= "±20％"
+      range_str ||= ""
 
       ohm = 0.0
       ohm += color[digits[0]] * 10
@@ -152,21 +153,21 @@ module ColorCode
         ohm = ohm/1000
         # 2.2kΩとかはそのままで10.0Ωとかを10Ωにする
         ohm = ohm.to_s.gsub(/\.0/,"")
-        ans = "#{ohm}kΩ #{range_str}"
+        ans ||= "#{ohm}kΩ #{range_str}"
 
       elsif digits_num >= 7
         ohm = ohm/1000000
         ohm = ohm.to_s.gsub(/\.0/,"")
-        ans = "#{ohm}MΩ #{range_str}"
+        ans ||= "#{ohm}MΩ #{range_str}"
         ans += "\nですが値が大き過ぎます。" if digits_num > 8
 
       # 例えば0.01が01になるのを防ぐ(0.0は0に)
       elsif ohm != 0.0 && ohm < 0.1
-        ans = "#{ohm}Ω #{range_str}"
+        ans ||= "#{ohm}Ω #{range_str}"
 
       else
         ohm = ohm.to_s.gsub(/\.0/,"")
-        ans = "#{ohm}Ω #{range_str}"
+        ans ||= "#{ohm}Ω #{range_str}"
       end
     end
 
