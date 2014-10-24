@@ -3,6 +3,7 @@
 require_relative "./helper.rb"
 
 module ColorCode
+  module_function
 
   def encode_filter(ohm_str)
     ohm_str = ohm_str.gsub(/@\w*/,"")
@@ -41,9 +42,30 @@ module ColorCode
     return code
   end
 
+  # E24系列であるかどうか
+  def e24?(*digits)
+    return false unless digits.size == 2
+
+    e24_series = {1=>[0, 1, 2, 3, 5, 6, 8],
+                  2=>[0, 2, 4, 7],
+                  3=>[0, 3, 6, 9],
+                  4=>[3, 7],
+                  5=>[1, 6],
+                  6=>[2, 8],
+                  7=>[5],
+                  8=>[2],
+                  9=>[1]}
+
+    e24_series.each do |key, val|
+      if digits[0] == key
+        return true if val.any? { |v| v == digits[1] }
+      end
+    end
+    return false
+  end
+
   # 抵抗値 -> カラーコード
   def encode(ohm_str)
-
     ohm_str = encode_filter(ohm_str)
     return if ohm_str.nil?
 
@@ -104,13 +126,15 @@ module ColorCode
       end
     end
 
+    if ans[0]
+      ans_str += "\n(※E24系列の抵抗値ではないです)" unless e24?(color[ans[0]], color[ans[1]])
+    end
     ans_str ||= "そんな抵抗ないです。"
     return ans_str
   end
 
   # カラーコード -> 抵抗値
   def decode(code)
-
     code = decode_filter(code)
     return if code.nil?
 
@@ -126,9 +150,11 @@ module ColorCode
     end
 
     catch(:error) do
+      throw :error if code.match(/^黒{3}.?$/) || code.match(/^黒{2}$/)
 
       # 文字数が3か4のものだけ受け付ける
       throw :error if digits.size < 3 || digits.size > 4
+      return "一本目に黒はないです。" if digits[0] == "黒"
 
       # 上記にない色や漢字が送られてきたら
       digits.each{ |digit| throw :error unless color[digit] }
@@ -169,11 +195,10 @@ module ColorCode
         ohm = ohm.to_s.gsub(/\.0/,"")
         ans ||= "#{ohm}Ω #{range_str}"
       end
+      ans += "\n(※E24系列の抵抗値ではないです)" unless e24?(color[digits[0]], color[digits[1]])
     end
 
     ans ||= "そんな抵抗ないです。"
     return ans
   end
-
-  module_function :encode_filter, :decode_filter, :encode, :decode
 end
