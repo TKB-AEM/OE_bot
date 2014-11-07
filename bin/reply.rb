@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
-# coding:utf-8
+# coding: utf-8
 
-require '../lib/function/function.rb'
+require "../lib/oebot"
 
 debug = false
 OptionParser.new do |opt|
@@ -9,7 +9,7 @@ OptionParser.new do |opt|
   opt.parse!(ARGV)
 end
 
-oebot = Bot.new(debug:debug,mention:true)
+oebot = OEbot::Bot.new(debug:debug, mention:true)
 
 system("clear")
 puts "debug mode" if debug
@@ -26,35 +26,33 @@ begin
     isMention = status.user_mentions.any? { |user| user.screen_name == oebot.name }
     isReply = contents.match(/^@\w*/)
 
+    # puts "twitter_id #{twitter_id}"
+    # puts "contents   #{contents}"
+    # puts "status_id  #{status_id}"
+    # puts ""
+
     # リツイート以外を取得
     if not_RT
-
-      # OEbotを呼び出す(他人へのリプを無視)
+      # リプライでない通常の投稿であれば
       if !isReply
-        if contents.match(oebot.rep_table['self'][0])
-          rep_text = Function.call(contents,table:oebot.rep_table)
-          oebot.post(rep_text,twitter_id:twitter_id,status_id:status_id) if rep_text
-          oebot.fav(status_id:status_id)
-        end
+        res_text = oebot.generate_response(contents, status_id, oebot)
+        oebot.post(res_text, twitter_id:twitter_id, status_id:status_id) if res_text
       end
 
       # 自分へのリプであれば
       if isMention
-        rep_text = Function.generate_reply(contents,oebot,twitter_id:twitter_id)
-        oebot.post(rep_text,twitter_id:twitter_id,status_id:status_id) if rep_text
+        rep_text = oebot.generate_reply(contents, twitter_id, oebot)
+        oebot.post(rep_text, twitter_id:twitter_id, status_id:status_id) if rep_text
       end
-
     end
 
-  sleep 2
+    sleep 2
   end
-
-rescue => em
-  puts Time.now
-  p em
-  sleep 1800
-  retry
 
 rescue Interrupt
   exit 1
+rescue
+  error_logs("reply", $!, $@)
+  sleep 300
+  retry
 end

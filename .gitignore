@@ -1,13 +1,7 @@
 config.yml
-
 OE_bot.db
+test.rb
 
 control/
 voice/
-
-test.rb
-tl_debug.rb
-reply_debug.rb
-
-*.wav
 mei/
