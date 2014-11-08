@@ -47,7 +47,6 @@ module OEbot
       else
         self.destroy_all
       end
-
     rescue
       error_logs("clear", $!, $@)
     end

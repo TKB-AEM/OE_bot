@@ -106,7 +106,6 @@ module OEbot
       if status_id
         @client.favorite(status_id)
       end
-
     rescue
       error_logs("fav", $!, $@)
     end

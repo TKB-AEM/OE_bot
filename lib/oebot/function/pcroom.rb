@@ -2,11 +2,11 @@
 
 module OEbot
   class PCroom
+
     attr_accessor :nodeList,:responseList,:status
 
     def initialize(range=2..91,timeout:1,ssh:nil)
       raise SyntaxError.new('invalid range') unless range.is_a? Range
-
       @on_count=0; @nodeList=[]; @responseList=[];
       range.each do |num|
         @nodeList << OEbot::PCnode.new(num,timeout:timeout,ssh:ssh)

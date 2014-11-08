@@ -30,10 +30,8 @@ module OEbot
         @id = @user.id
         @twitter_id = twitter_id
       end
-
       @name = @user.name
       @card_id = @user.card_id
-
       @condition = Condition.find_by_user_id(@id)
 
     rescue
@@ -105,8 +103,8 @@ module OEbot
 
       @user.condition.staying_time += hour*60 + min
       @user.condition.save
-
       return hour*60 + min
+
     rescue
       error_logs("sum_time", $!, $@)
     end

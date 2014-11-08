@@ -12,7 +12,6 @@ module OEbot
     def initialize(table, buns_list)
       @rep_table = table
       @buns_list = buns_list
-
       @e24_series = { 1=>[0, 1, 2, 3, 5, 6, 8],
                       2=>[0, 2, 4, 7],
                       3=>[0, 3, 6, 9],
