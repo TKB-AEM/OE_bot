@@ -18,7 +18,6 @@ module OEbot
           members += name + ","
         end
       end
-
       text = "\n室内には\n#{members.chop} がいます。" if !(members.empty?)
       text ||= "\n室内には誰もいません。"
       return text

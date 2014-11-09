@@ -2,6 +2,7 @@
 
 module OEbot
   class PCnode
+
     attr_accessor :node_num, :addr, :node_num_str,:ssh,:status
 
     def initialize(num,timeout:1,ssh:nil)
@@ -9,10 +10,8 @@ module OEbot
       @ssh      = ssh
 
       case @node_num.to_s.size
-        when 1
-          @node_num_str = '00'+ @node_num.to_s
-        when 2
-          @node_num_str = '0' + @node_num.to_s
+        when 1 then @node_num_str = '00' + @node_num.to_s
+        when 2 then @node_num_str = '0'  + @node_num.to_s
         else
           raise SyntaxError.new('invalid node_num')
       end
@@ -27,7 +26,6 @@ module OEbot
 
     def linux?
       raise SyntaxError.new('no ssh option') if ssh.nil?
-
       begin
         return true if Net::SSH.start(@addr,ssh[:username],ssh[:opt])
       rescue

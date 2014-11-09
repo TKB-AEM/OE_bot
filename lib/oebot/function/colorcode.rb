@@ -43,7 +43,6 @@ module OEbot
     # E24系列であるかどうか
     def e24?(*digits)
       return false unless digits.size == 2
-
       @e24_series.each do |key, val|
         if digits[0] == key
           return true if val.any? { |v| v == digits[1] }
@@ -54,7 +53,6 @@ module OEbot
 
     # 抵抗値 -> カラーコード
     def encode(ohm_str)
-
       ohm_str = encode_filter(ohm_str)
       return if ohm_str.nil?
 
@@ -121,7 +119,6 @@ module OEbot
 
     # カラーコード -> 抵抗値
     def decode(code)
-
       code = decode_filter(code)
       return if code.nil?
 

@@ -7,7 +7,7 @@ module Clockwork
   handler do |job|
     case job
     when 'reset_job'
-      debug = true
+      debug = false
       oebot = OEbot::Bot.new(debug:debug)
       last_id = OEbot::DataBase.last_id
 
