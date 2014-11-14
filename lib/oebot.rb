@@ -10,6 +10,7 @@ require 'pasori'
 require 'open3'
 require 'net/ping'
 require 'net/ssh'
+require 'nkf'
 require 'clockwork'
 
 require_relative "oebot/function/helper"
