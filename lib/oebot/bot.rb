@@ -41,47 +41,43 @@ module OEbot
 
 
     # 通常の投稿
-    def post(text = "",twitter_id:nil,status_id:nil)
+    def post(text = "", twitter_id:nil, status_id:nil, try:0)
       str_time = Time.now.strftime("[%Y-%m-%d %H:%M]")
-      try = 0
 
-        begin
-          # 会話の返事
-          if status_id
-            rep_text = "@#{twitter_id} #{text}"
-            rep_text += "\n#{str_time}"
-            rep_text = self.chain_post(text,twitter_id:twitter_id,status_id:status_id) if rep_text.size > 140
-            @client.update(rep_text,{:in_reply_to_status_id => status_id})
-            puts "#{rep_text}\n\n"
+      # 会話の返事
+      if status_id
+        rep_text = "@#{twitter_id} #{text}"
+        rep_text += "\n#{str_time}"
+        rep_text = self.chain_post(text,twitter_id:twitter_id,status_id:status_id) if rep_text.size > 140
+        @client.update(rep_text,{:in_reply_to_status_id => status_id})
+        puts "#{rep_text}\n\n"
 
-          # ただの投稿(twitter_id:nil)か会話の始まり
-          else
-            post_text = twitter_id ? "@#{twitter_id} #{text}" : text
-            post_text += "\n#{str_time}"
-            post_text = self.chain_post(text,twitter_id:twitter_id,status_id:status_id) if post_text.size > 140
-            @client.update(post_text)
-            puts "#{post_text}\n\n"
-          end
+      # ただの投稿(twitter_id:nil)か会話の始まり
+      else
+        post_text = twitter_id ? "@#{twitter_id} #{text}" : text
+        post_text += "\n#{str_time}"
+        post_text = self.chain_post(text,twitter_id:twitter_id,status_id:status_id) if post_text.size > 140
+        @client.update(post_text)
+        puts "#{post_text}\n\n"
+      end
 
-        # Twitter::Error::RequestTimeout: exection expired
-        rescue Twitter::Error
-          try += 1
-          error_logs("#{try}回目のpost", $!, $@)
-          sleep 1
-          retry if try < 3
-        end
+    # Twitter::Error::RequestTimeout: exection expired
+    rescue Twitter::Error
+      try += 1
+      error_logs("#{try}回目のpost", $!, $@)
+      sleep 1
+      retry if try < 3
     end
 
 
     # 140文字を超える投稿(分割投稿後140文字以下の最後の投稿を返す)
-    def chain_post(text = "",twitter_id:nil,status_id:nil)
+    def chain_post(text = "", twitter_id:nil, status_id:nil, try:0)
       over_text = text
       twitter_id_size = twitter_id ? ("@#{twitter_id}".size + 1) : 0
 
       # ↓”＠〜”と”str_time”19文字と”（続く）”4文字を除いた最終的にpostに返せる最大文字数で分割
       post_size = 140 - (twitter_id_size + 19 + 4)
       texts = over_text.scan(/.{1,#{post_size}}/m)
-      try = 0
 
       begin
         0.upto(texts.size - 2) do |i|
@@ -89,7 +85,7 @@ module OEbot
           @client.update(texts[i],{:in_reply_to_status_id => status_id})
           puts "#{texts[i]}\n\n"
         end
-      rescue
+      rescue Twitter::Error
         try += 1
         error_logs("#{try}回目のchain_post", $!, $@)
         sleep 1
