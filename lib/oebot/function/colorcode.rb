@@ -7,18 +7,9 @@ module OEbot
 
     def encode_filter(ohm_str)
       ohm_str = ohm_str.gsub(/(Ω|オーム|\s|　)/,"")
-      ohm_str = ohm_str.gsub(/０/,"0")
-      ohm_str = ohm_str.gsub(/１/,"1")
-      ohm_str = ohm_str.gsub(/２/,"2")
-      ohm_str = ohm_str.gsub(/３/,"3")
-      ohm_str = ohm_str.gsub(/４/,"4")
-      ohm_str = ohm_str.gsub(/５/,"5")
-      ohm_str = ohm_str.gsub(/６/,"6")
-      ohm_str = ohm_str.gsub(/７/,"7")
-      ohm_str = ohm_str.gsub(/８/,"8")
-      ohm_str = ohm_str.gsub(/９/,"9")
       ohm_str = ohm_str.gsub(/(％|%|㌫|ぱーせんと|パーセント|ﾊﾟｰｾﾝﾄ)/,"")
       ohm_str = ohm_str.gsub(/(±|プラスマイナス|ぷらすまいなす|プラマイ|ぷらまい)/,",")
+      ohm_str = NKF.nkf('-m0 -Z1 -w', ohm_str)
       ohm = ohm_str.split(",")
       return if ohm[0].nil?
 
