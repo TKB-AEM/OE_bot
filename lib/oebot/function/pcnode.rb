@@ -24,7 +24,7 @@ module OEbot
     end
 
     def linux?
-      raise SyntaxError.new('no ssh option') if ssh.nil?
+      raise "no ssh option" if ssh.nil?
       return true if Net::SSH.start(@addr, ssh[:username], ssh[:opt])
     rescue
       return false
