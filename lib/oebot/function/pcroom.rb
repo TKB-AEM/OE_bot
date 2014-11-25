@@ -3,19 +3,19 @@
 module OEbot
   class PCroom
 
-    attr_accessor :nodeList,:responseList,:status
+    attr_accessor :nodeList, :responseList, :status
 
-    def initialize(range=2..91,timeout:1,ssh:nil)
-      raise SyntaxError.new('invalid range') unless range.is_a? Range
+    def initialize(range=2..91, timeout:1, ssh:nil)
+      raise "invalid range" unless range.is_a? Range
       @on_count=0; @nodeList=[]; @responseList=[];
       range.each do |num|
-        @nodeList << OEbot::PCnode.new(num,timeout:timeout,ssh:ssh)
+        @nodeList << OEbot::PCnode.new(num, timeout:timeout, ssh:ssh)
       end
     end
 
     def get_status()
       threads = []
-      @nodeList.each_with_index do |node,i|
+      @nodeList.each_with_index do |node, i|
         threads << Thread.new do
           @responseList[i] = node.get_status
         end
