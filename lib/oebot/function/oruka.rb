@@ -8,17 +8,15 @@ module OEbot
 
     # ダレカオルカ
     def being
-      members = ""
-      last_id = OEbot::DataBase.last_id
-      last_id.times do |id|
-        id = id + 1
-        user = OEbot::DataBase.new(id:id)
-        if user.staytus?
-          name = user.name
-          members += name + ","
-        end
+      addrs = 2.upto(254).map { |i| "192.168.11.#{i}" }
+      members = Parallel.map(addrs, :in_threads => 128) do |addr|
+        `ping -c 1 #{addr}`
+        `arp -n #{addr}`.strip
+      end.select do |i|
+        i =~ /[a-z\d]{1,2}:[a-z\d]{1,2}:[a-z\d]{1,2}:[a-z\d]{1,2}:[a-z\d]{1,2}:[a-z\d]{1,2}/
       end
-      text = "\n室内には\n#{members.chop} がいます。" if !(members.empty?)
+
+      text = "\n室内に#{members.size}人の気配を感じます。" unless members.empty?
       text ||= "\n室内には誰もいません。"
       return text
     rescue

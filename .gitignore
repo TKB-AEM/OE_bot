@@ -5,3 +5,6 @@ test.rb
 control/
 voice/
 mei/
+logs/
+
+*.sh
