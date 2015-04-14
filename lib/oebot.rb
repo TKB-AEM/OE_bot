@@ -12,6 +12,7 @@ require 'net/ping'
 require 'net/ssh'
 require 'nkf'
 require 'clockwork'
+require 'parallel'
 
 require_relative "oebot/function/helper"
 require_relative "oebot/database/helper"
